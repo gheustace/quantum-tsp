@@ -4,20 +4,22 @@ from qiskit.circuit.library import ZGate
 # from qiskit.circuit.library import cz
 from qiskit.circuit.library import IntegerComparator
 import numpy as np
-from controlled_u import get_U_j_list
+from controlled_u import get_U_j_list, get_U_j_conj_list
 
 def apply_clc(circuit: QuantumCircuit, registers, constants) -> QuantumCircuit:
     # Apply H gates to each qubit in the t register
     circuit.h(registers["t"])
 
     U_j_list = get_U_j_list(constants["N"])
-    
+    U_j_conj_list = get_U_j_conj_list(constants["N"])
+
     count = 0
     while count < constants["t"]:
         for j in range(int(2**count)):
-            for i in range(constants["m"] * constants["N"]):
-                circuit.compose(U_j_list[0], qubits = [0,1], inplace = True)
-                # circuit.cz(registers["t"][count], registers["C"][i])  # Controlled on target qubits
+            circuit.compose(U_j_list[0].control(1), qubits = [8+count, 0, 1], inplace = True)
+            circuit.compose(U_j_list[1].control(1), qubits = [8+count, 2, 3], inplace = True)
+            circuit.compose(U_j_list[2].control(1), qubits = [8+count, 4, 5], inplace = True)
+            circuit.compose(U_j_list[3].control(1), qubits = [8+count, 6, 7], inplace = True)
         count += 1
 
 
@@ -34,9 +36,10 @@ def apply_clc(circuit: QuantumCircuit, registers, constants) -> QuantumCircuit:
     count = 0
     while count < constants["t"]:
         for j in range(int(2**count)):
-            for i in range(constants["m"] * constants["N"]):
-                circuit.compose(U_j_list[0], qubits = [0,1], inplace = True)
-                #circuit.cz(registers["t"][count], registers["C"][i])  # Controlled on target qubits
+            circuit.compose(U_j_conj_list[0].control(1), qubits = [8+count, 0, 1], inplace = True)
+            circuit.compose(U_j_conj_list[1].control(1), qubits = [8+count, 2, 3], inplace = True)
+            circuit.compose(U_j_conj_list[2].control(1), qubits = [8+count, 4, 5], inplace = True)
+            circuit.compose(U_j_conj_list[3].control(1), qubits = [8+count, 6, 7], inplace = True)
         count += 1
 
     # Apply H gates to each qubit in the t register again
