@@ -23,11 +23,8 @@ def generate_tsp_instance(num_cities):
     return G
 
 def get_adjacency_matrix(cities):
-
-    return np.matrix([[ 0,  1,  7,  6],
-                      [ 1,  0,  5,  4],
-                      [ 7,  5,  0,  4],
-                      [ 6,  4,  4,  0]])
+    G = generate_tsp_instance(cities)
+    return nx.adjacency_matrix(G)
     
 def get_theta(j, k):
     a = get_adjacency_matrix(4)
