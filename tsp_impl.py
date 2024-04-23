@@ -6,7 +6,7 @@ from clc_oracle import apply_clc
 import numpy as np
 m = 2
 t = 3
-N = 6
+N = 4
 i = 0
 Iopt = np.pi * np.sqrt(2**(m*N)) / 4
 constants = {"m":m, "N":N, "t":t, "i":i, "Iopt":Iopt}
