@@ -28,8 +28,6 @@ def get_theta(j, k):
     # print(a.item(j, adjacencies[j][k]))
     return a.item(j, adjacencies[j][k])
 
-
-
 def cost(constants):
     count = 0
     sum_result = 0
@@ -52,12 +50,35 @@ def get_U_j_list(cities):
         # Exponentiate the theta values to form the diagonal of the unitary matrix
         diagonal_elements = np.exp(1j * np.array(theta_j))
 
+        print(diagonal_elements)
         # Create the diagonal gate
         U_j = Diagonal(diagonal_elements)
 
         U_j_list.append(U_j)
 
     return U_j_list
+
+def get_U_j_conj_list(cities):
+    U_j_conj_list = []
+    for j in range(cities):
+        # Size of the unitary, 2^m
+        m = 2
+        size_Uj = 2 ** m
+
+        # Calculate the theta values according to the equation
+        theta_j = [0] * size_Uj
+        for k in range(cities - 1):
+            theta_j[k] = get_theta(j, k)
+
+        # Exponentiate the theta values to form the diagonal of the unitary matrix
+        diagonal_elements = np.exp(-1j * np.array(theta_j))
+
+        # Create the diagonal gate
+        U_j = Diagonal(diagonal_elements)
+
+        U_j_conj_list.append(U_j)
+
+    return U_j_conj_list
     # # Create a new quantum circuit or use an existing one
     # qc = QuantumCircuit(m)  # 'm' qubits in the register
 
