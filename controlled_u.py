@@ -6,6 +6,7 @@ from qiskit.circuit.library import IntegerComparator
 # from qiskit_ibm_runtime.fake_provider import FakeCairoV2
 import qiskit
 from qiskit_aer import AerSimulator
+import networkx as nx
 # from qiskit_ibm_runtime import QiskitRuntimeService, EstimatorV2 as Estimator
 import numpy as np
 
@@ -14,6 +15,12 @@ def get_complete_adjacencies(cities):
     for i in range(cities):
         adjacencies.append([x for x in range(cities) if x != i])
     return adjacencies
+
+def generate_tsp_instance(num_cities):
+    G = nx.erdos_renyi_graph(num_cities, 0.8)
+    for e in G.edges():
+        G.add_edge(e[0], e[1], weight=np.round(np.abs(np.random.normal(0,2)),3))
+    return G
 
 def get_adjacency_matrix(cities):
 

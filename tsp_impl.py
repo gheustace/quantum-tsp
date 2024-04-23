@@ -33,4 +33,7 @@ TSPcircuit.x(qr_R)
 
 # Display the circuit
 TSPcircuit = apply_clc(TSPcircuit, registers, constants)
+
+
+
 print(TSPcircuit)
