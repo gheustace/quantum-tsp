@@ -6,12 +6,12 @@ from qiskit.circuit.library import IntegerComparator
 import numpy as np
 from controlled_u import get_U_j_list, get_U_j_conj_list
 
-def apply_clc(circuit: QuantumCircuit, registers, constants) -> QuantumCircuit:
+def apply_clc(circuit: QuantumCircuit, registers, constants, tsp_instance) -> QuantumCircuit:
     # Apply H gates to each qubit in the t register
     circuit.h(registers["t"])
 
-    U_j_list = get_U_j_list(constants["N"])
-    U_j_conj_list = get_U_j_conj_list(constants["N"])
+    U_j_list = get_U_j_list(constants["N"], tsp_instance)
+    U_j_conj_list = get_U_j_conj_list(constants["N"], tsp_instance)
 
     count = 0
     while count < constants["t"]:

@@ -20,7 +20,11 @@ def get_complete_adjacencies(cities):
 def generate_tsp_instance(num_cities):
     G = nx.erdos_renyi_graph(num_cities, 0.8)
     for e in G.edges():
-        G.add_edge(e[0], e[1], weight=np.round(np.abs(np.random.normal(0,2)),3))
+        G.add_edge(e[0], e[1], weight=np.round(np.abs(np.random.normal(0,1)),3))
+    adj_mat = nx.adjacency_matrix(G)
+    total = np.sum(adj_mat)
+    for e in G.edges():
+        G.add_edge(e[0], e[1], weight=adj_mat[e[0], e[1]]/total)
     return G
 
 
@@ -32,10 +36,10 @@ def get_adjacency_matrix(cities):
     #                   [ 6,  4,  4,  0]])
 
     G = generate_tsp_instance(cities)
-    return nx.adjacency_matrix(G)
+    return nx.adjacency_matrix(G).toarray()
     
-def get_theta(j, k):
-    a = get_adjacency_matrix(4)
+def get_theta(j, k, G):
+    a = nx.adjacency_matrix(G).toarray()
     adjacencies = get_complete_adjacencies(4)
     # print(a.item(j, adjacencies[j][k]))
     return a.item(j, adjacencies[j][k])
@@ -47,7 +51,7 @@ def cost(constants):
         sum_result += get_theta(count, 1)
     return sum_result
 
-def get_U_j_list(cities):
+def get_U_j_list(cities, tsp_instance):
     U_j_list = []
     for j in range(cities):
         # Size of the unitary, 2^m
@@ -57,7 +61,7 @@ def get_U_j_list(cities):
         # Calculate the theta values according to the equation
         theta_j = [0] * size_Uj
         for k in range(cities - 1):
-            theta_j[k] = get_theta(j, k)
+            theta_j[k] = get_theta(j, k, tsp_instance)
 
         # Exponentiate the theta values to form the diagonal of the unitary matrix
         diagonal_elements = np.exp(1j * np.array(theta_j))
@@ -70,7 +74,7 @@ def get_U_j_list(cities):
 
     return U_j_list
 
-def get_U_j_conj_list(cities):
+def get_U_j_conj_list(cities, tsp_instance):
     U_j_conj_list = []
     for j in range(cities):
         # Size of the unitary, 2^m
@@ -80,7 +84,7 @@ def get_U_j_conj_list(cities):
         # Calculate the theta values according to the equation
         theta_j = [0] * size_Uj
         for k in range(cities - 1):
-            theta_j[k] = get_theta(j, k)
+            theta_j[k] = get_theta(j, k, tsp_instance)
 
         # Exponentiate the theta values to form the diagonal of the unitary matrix
         diagonal_elements = np.exp(-1j * np.array(theta_j))
