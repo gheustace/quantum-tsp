@@ -6,6 +6,7 @@ from qiskit.circuit.library import IntegerComparator
 # from qiskit_ibm_runtime.fake_provider import FakeCairoV2
 import qiskit
 from qiskit_aer import AerSimulator
+from qiskit.circuit.library import GroverOperator
 import networkx as nx
 # from qiskit_ibm_runtime import QiskitRuntimeService, EstimatorV2 as Estimator
 import numpy as np
@@ -22,7 +23,14 @@ def generate_tsp_instance(num_cities):
         G.add_edge(e[0], e[1], weight=np.round(np.abs(np.random.normal(0,2)),3))
     return G
 
+
 def get_adjacency_matrix(cities):
+
+    # return np.matrix([[ 0,  1,  7,  6],
+    #                   [ 1,  0,  5,  4],
+    #                   [ 7,  5,  0,  4],
+    #                   [ 6,  4,  4,  0]])
+
     G = generate_tsp_instance(cities)
     return nx.adjacency_matrix(G)
     
@@ -92,8 +100,17 @@ def get_U_j_conj_list(cities):
     # # Display the circuit
     # print(qc)
 
-qr_C = QuantumRegister(12, 'C')
+def apply_grover_diffusion_operator(circuit, registers, constants):
+    """
+    Apply diffusion operator to first m * N cities
+    """
+    grover_oracle = QuantumCircuit(constants["m"] * constants["N"])
 
+    grover_circuit = GroverOperator(grover_oracle, insert_barriers=True)
+
+    circuit.compose(grover_circuit, inplace=True)
+
+    return circuit
 
 # backend = FakeCairoV2()
 # estimator = Estimator(backend)
