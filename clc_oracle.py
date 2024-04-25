@@ -27,7 +27,8 @@ def apply_clc(circuit: QuantumCircuit, registers, constants, tsp_instance) -> Qu
     circuit.append(QFT(num_qubits=constants["t"], inverse=True), registers["t"])
 
     # <Cth
-    comparator = IntegerComparator(num_state_qubits=constants["t"], value=1, geq=False)
+    int_comp_val = (2 ** (constants["t"] + 1))/(constants["p"] * (constants["N"] - 1))
+    comparator = IntegerComparator(num_state_qubits=constants["t"], value=int_comp_val, geq=False)
     circuit.compose(comparator, qubits = [x for x in range(int(constants["m"] * constants["N"]), int(constants["m"] * constants["N"] + 2 * constants["t"]))], inplace=True)
 
     # Apply the Quantum Fourier Transform on t qubits
