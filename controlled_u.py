@@ -20,26 +20,22 @@ def get_complete_adjacencies(cities):
 def generate_tsp_instance(num_cities):
     G = nx.erdos_renyi_graph(num_cities, 0.8)
     for e in G.edges():
-        G.add_edge(e[0], e[1], weight=np.round(np.abs(np.random.normal(0,1)),3))
-    adj_mat = nx.adjacency_matrix(G)
-    total = np.sum(adj_mat)
-    for e in G.edges():
-        G.add_edge(e[0], e[1], weight=adj_mat[e[0], e[1]]/total)
+        G.add_edge(e[0], e[1], weight=np.round(np.abs(np.random.normal(0,2)),3))
     return G
 
 
 def get_adjacency_matrix(cities):
 
-    # return np.matrix([[ 0,  1,  7,  6],
-    #                   [ 1,  0,  5,  4],
-    #                   [ 7,  5,  0,  4],
-    #                   [ 6,  4,  4,  0]])
+    return np.matrix([[ 0,  1,  7,  6],
+                      [ 1,  0,  5,  4],
+                      [ 7,  5,  0,  4],
+                      [ 6,  4,  4,  0]])
 
-    G = generate_tsp_instance(cities)
-    return nx.adjacency_matrix(G).toarray()
+    # G = generate_tsp_instance(cities)
+    # return nx.adjacency_matrix(G)
     
-def get_theta(j, k, G):
-    a = nx.adjacency_matrix(G).toarray()
+def get_theta(j, k):
+    a = get_adjacency_matrix(4)
     adjacencies = get_complete_adjacencies(4)
     # print(a.item(j, adjacencies[j][k]))
     return a.item(j, adjacencies[j][k])
@@ -51,7 +47,7 @@ def cost(constants):
         sum_result += get_theta(count, 1)
     return sum_result
 
-def get_U_j_list(cities, tsp_instance):
+def get_U_j_list(cities):
     U_j_list = []
     for j in range(cities):
         # Size of the unitary, 2^m
@@ -61,7 +57,7 @@ def get_U_j_list(cities, tsp_instance):
         # Calculate the theta values according to the equation
         theta_j = [0] * size_Uj
         for k in range(cities - 1):
-            theta_j[k] = get_theta(j, k, tsp_instance)
+            theta_j[k] = get_theta(j, k)
 
         # Exponentiate the theta values to form the diagonal of the unitary matrix
         diagonal_elements = np.exp(1j * np.array(theta_j))
@@ -74,7 +70,7 @@ def get_U_j_list(cities, tsp_instance):
 
     return U_j_list
 
-def get_U_j_conj_list(cities, tsp_instance):
+def get_U_j_conj_list(cities):
     U_j_conj_list = []
     for j in range(cities):
         # Size of the unitary, 2^m
@@ -84,7 +80,7 @@ def get_U_j_conj_list(cities, tsp_instance):
         # Calculate the theta values according to the equation
         theta_j = [0] * size_Uj
         for k in range(cities - 1):
-            theta_j[k] = get_theta(j, k, tsp_instance)
+            theta_j[k] = get_theta(j, k)
 
         # Exponentiate the theta values to form the diagonal of the unitary matrix
         diagonal_elements = np.exp(-1j * np.array(theta_j))
@@ -95,14 +91,32 @@ def get_U_j_conj_list(cities, tsp_instance):
         U_j_conj_list.append(U_j)
 
     return U_j_conj_list
-    # # Create a new quantum circuit or use an existing one
-    # qc = QuantumCircuit(m)  # 'm' qubits in the register
 
-    #     # Apply the diagonal gate to the circuit
-    # qc.append(U_j, [i for i in range(m)])
+def get_U_j_short_depth(cities, timesteps):
+    U_j_short_depth = [[] for i in range(timesteps)]
+    for t in range(timesteps):
 
-    # # Display the circuit
-    # print(qc)
+        for j in range(cities):
+            # Size of the unitary, 2^m
+            m = 2
+            size_Uj = 2 ** m
+
+            # Calculate the theta values according to the equation
+            theta_j = [0] * size_Uj
+            for k in range(cities - 1):
+                theta_j[k] = get_theta(j, k)
+
+            # Exponentiate the theta values to form the diagonal of the unitary matrix
+            diagonal_elements = np.exp(-1j * 2*t * np.array(theta_j))
+
+            print(diagonal_elements)
+
+            # Create the diagonal gate
+            U_j = Diagonal(diagonal_elements)
+
+            U_j_short_depth[t].append(U_j)
+
+    return U_j_short_depth
 
 def apply_grover_diffusion_operator(circuit, registers, constants):
     """
@@ -115,6 +129,8 @@ def apply_grover_diffusion_operator(circuit, registers, constants):
     circuit.compose(grover_circuit, inplace=True)
 
     return circuit
+
+# print(get_U_j_short_depth(4, 100))
 
 # backend = FakeCairoV2()
 # estimator = Estimator(backend)
