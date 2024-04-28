@@ -3,6 +3,7 @@ from qiskit.circuit.library import UnitaryGate
 import numpy as np
 import scipy
 from scipy.optimize import minimize
+from controlled_u import get_U_j_short_depth
 
 # Create a Quantum Register with 2 qubits and a Classical Register with 1 bit
 qreg = QuantumRegister(2)
@@ -23,7 +24,7 @@ circuit.append(UnitaryGate(unitary_matrix).control(), [qreg[0], qreg[1]])
 # For S-dagger
 # circuit.sdg(qreg[0])
 # If W were to be the Identity, you would use:
-circuit.i(qreg[0])
+# circuit.i(qreg[0])
 
 # Apply Hadamard gate on qubit 0
 circuit.h(qreg[0])
@@ -54,3 +55,11 @@ result = minimize(loss_function, initial_guess, args=(Z,), bounds=[(0, None), (N
 r_star, theta_star = result.x
 
 print(f"The optimal values are r* = {r_star} and theta* = {theta_star}")
+
+def apply_qpe(circuit, registers, constants):
+    circuit.h(registers["t"][0])
+    U_j_short_depth = get_U_j_short_depth(4, 100)
+    for t in range(len(U_j_short_depth)):
+        for k in range(constants["N"]):
+            circuit.compose(U_j_short_depth[t][k].control(1), qubits = [constants["m"] * constants["N"] + 1, 2*k, 2*k+1], inplace = True)
+    circuit.h(registers["t"][0])
