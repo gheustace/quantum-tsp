@@ -37,11 +37,11 @@ for qubit in range(m*N):
 for qubit in range(t):
     TSPcircuit.h(qr_t[qubit])
 
-TSPcircuit = apply_clc(TSPcircuit, registers, constants)
+TSPcircuit = apply_clc(TSPcircuit, registers, constants, True)
 
 TSPcircuit = apply_grover_diffusion_operator(TSPcircuit, registers, constants)
 
-TSPcircuit = apply_clc(TSPcircuit, registers, constants)
+TSPcircuit = apply_clc(TSPcircuit, registers, constants, True)
 
 TSPcircuit.measure(qr_C, cr_C)
 
